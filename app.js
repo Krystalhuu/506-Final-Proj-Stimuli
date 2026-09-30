@@ -1,0 +1,37 @@
+const defaults={retailer:'Everyday Supply',brand:'VoltGo',name:'Compact Power Bank — 10,000 mAh Portable USB-C Charger',price:'$14.99',source:'AI Shopping Assistant Pick',sourceNote:'Our AI evaluated the available options and identified this product as a top choice.',explanation:'This product was selected because its 10,000 mAh battery, USB-C connectivity, and up to 20W output support charging on the go, while its compact size makes it easy to carry in a backpack or bag.',capacity:'10,000 mAh',connection:'USB-C',output:'20W',weight:'6.8 oz',dimensions:'4.2 × 2.6 × 0.6 in',showExplanation:true};
+let state={...defaults};
+function validated(value){if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Choose a valid stimulus configuration.');const result={...defaults};for(const k of Object.keys(defaults)){if(k in value){if(k==='showExplanation'){if(typeof value[k]!=='boolean')throw Error('Explanation setting must be true or false.');}else if(typeof value[k]!=='string'||value[k].length>5000){throw Error('Invalid text field: '+k);}result[k]=value[k];}}return result;}
+try{if(location.hash.length>1)state=validated(JSON.parse(decodeURIComponent(location.hash.slice(1))));}catch(e){document.getElementById('status').textContent='Unable to load configuration; showing defaults.';}
+const participant=new URLSearchParams(location.search).get('view')==='participant';if(participant){document.body.classList.add('participant');document.title=state.name+' | '+state.retailer;}let noteOpen=false;
+const liveChannel=typeof BroadcastChannel==='function'?new BroadcastChannel('powerbank-stimulus-live'):null;
+const labels={retailer:'Retailer name',brand:'Product brand',name:'Product name',price:'Price',source:'AI recommendation label',sourceNote:'Explanation',explanation:'Product Description'};
+function render(){document.querySelectorAll('[data-field]').forEach(el=>el.textContent=state[el.dataset.field]??'');
+
+    const note=document.querySelector('.source-note');
+    const noteVisible=state.showExplanation&&(!participant||noteOpen);
+    note.hidden=!noteVisible;note.style.display=noteVisible?'block':'none';
+    note.setAttribute('aria-hidden',String(!noteVisible));
+    const seeWhy=document.getElementById('seeWhy');
+    seeWhy.style.display=state.showExplanation&&participant&&!noteOpen?'inline-block':'none';
+    document.getElementById('condition').textContent='AI · Explanation '+(state.showExplanation?'present':'absent');
+    const url=new URL(location.href);url.search='?view=participant';
+    url.hash=encodeURIComponent(JSON.stringify(state));document.getElementById('preview').href=url.href;}
+    
+function broadcast(){const payload=JSON.stringify(state);liveChannel?.postMessage(state);try{localStorage.setItem('powerbank-stimulus-live',payload);}catch(e){}}
+function update(){render();broadcast();}
+function acceptLiveState(value){try{state=validated(value);const url=new URL(location.href);url.hash=encodeURIComponent(JSON.stringify(state));history.replaceState(null,'',url);render();}catch(e){}}
+if(participant){liveChannel?.addEventListener('message',event=>acceptLiveState(event.data));window.addEventListener('storage',event=>{if(event.key==='powerbank-stimulus-live'&&event.newValue)acceptLiveState(JSON.parse(event.newValue));});}
+function form(){const f=document.getElementById('editorForm');f.replaceChildren();for(const [key,label]of Object.entries(labels)){const wrap=document.createElement('div');if(['explanation','name','source','sourceNote'].includes(key))wrap.className='wide';const l=document.createElement('label');l.htmlFor=key;l.textContent=label;const input=document.createElement(['explanation','sourceNote'].includes(key)?'textarea':'input');input.id=key;input.value=state[key];input.maxLength=5000;if(key==='explanation')input.rows=5;if(key==='sourceNote')input.rows=3;input.addEventListener('input',()=>{state[key]=input.value;update();});wrap.append(l,input);f.append(wrap);}const label=document.createElement('label');label.className='toggle wide';const check=document.createElement('input');check.type='checkbox';check.checked=state.showExplanation;check.id='showExplanation';check.addEventListener('change',()=>{state.showExplanation=check.checked;update();});label.append(check,document.createTextNode('Show explanation'));f.append(label);}
+document.getElementById('editorForm').addEventListener('submit',e=>e.preventDefault());
+document.getElementById('buy').addEventListener('click',()=>{document.getElementById('buyNote').textContent='Your product has been added into the cart';});
+document.getElementById('download').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='powerbank-stimulus.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);document.getElementById('status').textContent='Configuration downloaded. Load it here to continue editing.';});
+document.getElementById('import').addEventListener('change',async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>100000)throw Error('Configuration file is too large.');const next=validated(JSON.parse(await file.text()));state=next;form();update();document.getElementById('status').textContent='Configuration loaded.';}catch(err){document.getElementById('status').textContent=err.message;}});
+document.querySelector('.spec-title')?.remove();
+document.querySelector('.specs')?.remove();
+document.querySelector('.caption')?.remove();
+document.getElementById('productExplanation').style.marginBottom='0';
+document.getElementById('buy').style.marginTop='18px';
+document.getElementById('seeWhy').addEventListener('click',()=>{noteOpen=true;render();});
+form();render();
+if(!participant&&document.modelContext?.registerTool){try{Promise.resolve(document.modelContext.registerTool({name:'configure_stimulus',description:'Update the editable power-bank stimulus text and explanation visibility.',inputSchema:{type:'object',properties:{explanation:{type:'string'},showExplanation:{type:'boolean'},price:{type:'string'},name:{type:'string'}},additionalProperties:false},annotations:{readOnlyHint:false},execute(input){state=validated({...state,...input});form();render();return {name:state.name,showExplanation:state.showExplanation,price:state.price};}})).catch(()=>{});}catch(e){}}
+

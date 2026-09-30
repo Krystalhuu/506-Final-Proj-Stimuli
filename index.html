@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en"><head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Power Bank Study | Stimulus editor</title>
+<meta name="description" content="Editable mobile AI recommendation product-page stimulus.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23131d29'/%3E%3Cpath d='M18 4 9 18h7l-2 10 10-16h-8z' fill='white'/%3E%3C/svg%3E"><style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #111820;
+    background: #e9edf2;
+    font-size: 16px;
+    line-height: 1.45;
+}
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
+button,
+a {
+    touch-action: manipulation;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #3277c9;
+    outline-offset: 3px;
+}
+
+.workspace {
+    display: grid;
+    grid-template-columns: 330px minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.editor {
+    padding: 26px 23px;
+    background: #152640;
+    color: #fff;
+    max-height: 100vh;
+    overflow: auto;
+    position: sticky;
+    top: 0;
+}
+
+.eyebrow {
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #8fc0ff;
+}
+
+.editor h1 {
+    font-size: 24px;
+    line-height: 1.2;
+    margin: 9px 0;
+}
+
+.editor p {
+    font-size: 14px;
+    color: #c4d0e0;
+}
+
+.editor label {
+    display: block;
+    font-size: 14px;
+    margin: 15px 0 5px;
+}
+
+.editor input:not([type=checkbox]),
+.editor textarea {
+    width: 100%;
+    border: 1px solid #53627a;
+    border-radius: 6px;
+    background: #fff;
+    color: #182439;
+    padding: 9px 10px;
+}
+
+.editor textarea {
+    resize: vertical;
+    min-height: 94px;
+}
+
+.editor .toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #223955;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 20px 0;
+}
+
+.toggle input {
+    width: 20px;
+    height: 20px;
+}
+
+.editor button,
+.editor a {
+    display: block;
+    width: 100%;
+    text-align: center;
+    border-radius: 6px;
+    padding: 11px 8px;
+    margin-top: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    border: 1px solid #6c809c;
+    text-decoration: none;
+    color: white;
+    background: transparent;
+}
+
+.editor .primary {
+    background: #fff;
+    color: #152640;
+    border: 0;
+}
+
+.editor small {
+    display: block;
+    font-size: 12px;
+    color: #b8c7dd;
+    margin-top: 18px;
+}
+
+.canvas {
+    padding: 24px;
+    min-width: 0;
+}
+
+.preview-label {
+    max-width: 430px;
+    margin: 0 auto 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #526277;
+    gap: 12px;
+}
+
+.condition {
+    border: 1px solid #ced6e1;
+    border-radius: 20px;
+    padding: 4px 10px;
+    background: white;
+}
+
+.phone {
+    width: 100%;
+    max-width: 430px;
+    margin: auto;
+    background: #fff;
+    min-height: 820px;
+    border: 1px solid #cfd5dd;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 18px 48px rgba(23, 35, 50, .16);
+}
+
+.mobile-top {
+    height: 25px;
+    background: #131d29;
+}
+
+.store-header {
+    background: #131d29;
+    color: #fff;
+    padding: 10px 15px 14px;
+}
+
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 11px;
+}
+
+.wordmark {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+}
+
+.cart {
+    font-size: 14px;
+    color: #d7e1ee;
+}
+
+.search {
+    height: 42px;
+    border-radius: 22px;
+    background: #fff;
+    color: #68717d;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    font-size: 15px;
+}
+
+.search b {
+    font-size: 22px;
+    line-height: 1;
+    margin-right: 10px;
+    color: #111;
+}
+
+.product {
+    padding: 20px 18px 35px;
+}
+
+.brand {
+    color: #1d67a6;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.details h2 {
+    font-size: 20px;
+    line-height: 1.32;
+    margin: 0 0 17px;
+    font-weight: 500;
+}
+
+.recommendation {
+    margin: 0 0 16px;
+}
+
+.recommendation h3 {
+    display: inline-block;
+    margin: 0 0 7px;
+    background: #8B0000;
+    color: #fff;
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 16px;
+    line-height: 1.2;
+}
+.see-why-wrap{
+    margin:0 0 8px
+}
+.see-why{
+    display:none;
+    background:none;
+    border:0;padding:0;
+    color:#1d67a6;
+    font-size:18px;
+    font-weight:600;
+    cursor:pointer}.see-why:hover{text-decoration:underline}
+
+.source-note {
+    font-size: 16px;
+    line-height: 1.4;
+    color: #4b5664;
+    margin: 0;
+}
+
+.visual {
+    margin: 4px -4px 9px;
+    text-align: center;
+}
+
+.visual img {
+    display: block;
+    width: 90%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+}
+
+.caption {
+    font-size: 12px;
+    color: #687380;
+    margin-top: 7px;
+}
+
+.price {
+    font-size: 31px;
+    font-weight: 500;
+    margin: 13px 0 0;
+}
+
+.explanation {
+    font-size: 14px;
+    line-height: 1.52;
+    margin: 16px 0 21px;
+    color: #202a35;
+}
+
+.details h3.spec-title {
+    font-size: 16px;
+    margin: 23px 0 8px;
+}
+
+.specs {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.specs li {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    border-bottom: 1px solid #e4e8ed;
+    padding: 10px 0;
+    font-size: 14px;
+}
+
+.specs span {
+    color: #5a6573;
+}
+
+.specs strong {
+    text-align: right;
+    font-weight: 500;
+}
+
+.buy {
+    background: #ffd814;
+    color: #111;
+    width: 100%;
+    border: 1px solid #f2c200;
+    border-radius: 22px;
+    padding: 11px;
+    margin-top: 24px;
+    font-weight: 600;
+}
+
+.buy-note {
+    min-height: 22px;
+    font-size: 13px;
+    color: #526277;
+    text-align: center;
+    margin-top: 8px;
+}
+
+.store-footer {
+    padding: 19px;
+    border-top: 1px solid #e4e8ee;
+    color: #7c8796;
+    font-size: 12px;
+    text-align: center;
+}
+
+.participant .editor,
+.participant .preview-label {
+    display: none;
+}
+
+.participant .workspace {
+    display: block;
+}
+
+.participant .canvas {
+    padding: 0;
+}
+
+.participant {
+    background: #fff;
+}
+
+.participant .phone {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    max-width: 430px;
+}
+
+.status {
+    font-size: 13px !important;
+    min-height: 20px;
+    color: #d0e6ff !important;
+}
+
+@media (max-width: 800px) {
+    .workspace {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .editor {
+        position: static;
+        max-height: none;
+        padding: 22px;
+    }
+
+    .editor form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 16px;
+    }
+
+    .editor .wide {
+        grid-column: 1/-1;
+    }
+
+    .canvas {
+        padding: 12px;
+    }
+
+    .phone {
+        border-radius: 18px;
+    }
+
+    .preview-label {
+        margin-top: 2px;
+    }
+}
+
+@media (max-width: 500px) {
+    .editor form {
+        display: block;
+    }
+
+    .phone {
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+    }
+
+    .canvas {
+        padding: 10px 0;
+    }
+
+    .preview-label {
+        padding: 0 12px;
+    }
+}
+
+@media print {
+    .editor,
+    .preview-label {
+        display: none !important;
+    }
+
+    .workspace {
+        display: block;
+    }
+
+    .canvas {
+        padding: 0;
+    }
+
+    .phone {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+}
+</style>
+</head>
+<body>
+    <div class="workspace">
+        <aside class="editor">
+            <div class="eyebrow">Research workspace</div>
+            <h1>Mobile PDP stimulus</h1><p>Edit the AI condition, then open the clean participant preview.</p>
+            <form id="editorForm"></form><a class="primary" id="preview" target="_blank" rel="noopener">Open participant preview ↗</a>
+            <button id="download">Download editable configuration</button><label for="import">Load configuration</label><input id="import" type="file" accept="application/json,.json">
+            <p id="status" class="status" role="status"></p><small>Fictional retailer, product, and specifications. Edits are embedded in the preview link; download a configuration to keep a reusable copy. No responses or purchases are collected.</small>
+        </aside>
+        <main class="canvas">
+            <div class="preview-label">
+                <span>MOBILE PARTICIPANT VIEW</span>
+                <span class="condition" id="condition">AI · Explanation present</span>
+            </div><article class="phone"><div class="mobile-top"></div>
+                <header class="store-header"><div class="header-row">
+                    <div class="wordmark" data-field="retailer"></div>
+                    <span class="cart">Cart</span></div><div class="search"><b>⌕</b> Search products</div>
+                </header><section class="product details"><div class="brand">Visit the <span data-field="brand"></span> Store</div>
+                    <h2 data-field="name"></h2>
+                        <div class="recommendation">
+                            <h3 data-field="source"></h3>
+                            <div class="see-why-wrap"><button type="button" class="see-why" id="seeWhy">🔍 Click to see why</button></div>
+                            <p class="source-note" data-field="sourceNote"></p></div>
+                        <div class="visual"><img src="powerbank.png" alt="Graphite portable power bank shown at a three-quarter angle">
+                            <div class="caption">Color: Graphite</div></div>
+                            <div class="price" data-field="price"></div>
+                            <p class="explanation" id="productExplanation" data-field="explanation"></p>
+                            <h3 class="spec-title">Product details</h3>
+                            <ul class="specs"><li><span>Battery capacity</span><strong data-field="capacity"></strong></li>
+                                <li><span>Connection</span><strong data-field="connection"></strong></li><li><span>Maximum output</span><strong data-field="output"></strong></li>
+                                <li><span>Weight</span><strong data-field="weight"></strong></li>
+                                li><span>Dimensions</span><strong data-field="dimensions"></strong></li>
+                            </ul><button class="buy" id="buy">Add to cart</button>
+                            <div class="buy-note" id="buyNote" role="status"></div>
+                        </section><footer class="store-footer"><span data-field="retailer"></span></footer></article></main></div><script src="app.js?v=6"></script></body></html>
