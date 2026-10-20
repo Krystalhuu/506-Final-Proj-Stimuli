@@ -1,0 +1,12 @@
+I’m uploading the source files for an editable mobile product-page stimulus for a research study. Please unzip and read README.txt, index.html, and app.js before editing.
+
+Create my own independent copy. Do not modify the original researcher’s site. Preserve the existing mobile layout, product image, $14.99 price, editable fields, configuration import/export, and participant preview unless my edits below say otherwise.
+
+Study context: a portable power bank recommendation from AI, a human expert, or previous customers/crowd peers; explanation present versus absent. The explanation gives a reason why the product was recommended. Keep other content consistent across conditions unless requested.
+
+MY EDITS:
+[Replace this with my requested changes.]
+
+Apply the edits to the working source files. Check that every editable field updates the product page and participant preview, that unchecking Show explanation fully removes the explanation, and that configuration export/import preserves the settings. Keep the Add to cart button directly below the price when the explanation is hidden. Do not add actual checkout or response collection.
+
+If website publishing tools are available, publish this as a new site in my account and give me its URL. Otherwise return the updated source files as a ZIP with local-preview instructions. Explain briefly what changed.
