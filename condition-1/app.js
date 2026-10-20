@@ -58,21 +58,29 @@ function saveStateToStorage() {
   } catch (e) {}
 }
 
+
 function loadStateFromStorage() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    return validated(JSON.parse(raw));
+    const saved = validated(JSON.parse(raw));
+    saved.source = defaults.source;
+    saved.showExplanation = defaults.showExplanation;
+    return saved;
   } catch (e) {
     return null;
   }
 }
 
 
-
 try {
   if (location.hash.length > 1) {
-    state = validated(JSON.parse(decodeURIComponent(location.hash.slice(1))));
+    const parsed = JSON.parse(decodeURIComponent(location.hash.slice(1)));
+    if (parsed && parsed.condition && parsed.condition !== condition) {
+      // hash 属于别的 condition，忽略，用 defaults
+    } else {
+      state = validated(parsed && parsed.state ? parsed.state : parsed);
+    }
   } else {
     const saved = loadStateFromStorage();
     if (saved) state = saved;
@@ -80,7 +88,6 @@ try {
 } catch (e) {
   document.getElementById('status').textContent = 'Unable to load configuration; showing defaults.';
 }
-
 
 
 function update() {
@@ -127,21 +134,44 @@ function render(){document.querySelectorAll('[data-field]').forEach(el=>el.textC
 
     const url = new URL(location.href);
     url.search = `?condition=${condition}&view=participant`;
-    url.hash = encodeURIComponent(JSON.stringify(state));
+    url.hash = encodeURIComponent(JSON.stringify({ condition, state }));
     document.getElementById('preview').href = url.href;
 }
 
+
+const LIVE_KEY = `powerbank-stimulus-live-${condition}`;
+
 const liveChannel = typeof BroadcastChannel === 'function'
-  ? new BroadcastChannel('powerbank-stimulus-live')
+  ? new BroadcastChannel(LIVE_KEY)
   : null;
 
 function broadcast(){
-    const payload=JSON.stringify(state);liveChannel?.postMessage(state);
-    try{localStorage.setItem('powerbank-stimulus-live',payload);}catch(e){}}
+  const payload = JSON.stringify({ condition, state });
+  liveChannel?.postMessage(payload);
+  try { localStorage.setItem(LIVE_KEY, payload); } catch (e) {}
+}
 
-    
-function acceptLiveState(value){try{state=validated(value);const url=new URL(location.href);url.hash=encodeURIComponent(JSON.stringify(state));history.replaceState(null,'',url);render();}catch(e){}}
-if(participant){liveChannel?.addEventListener('message',event=>acceptLiveState(event.data));window.addEventListener('storage',event=>{if(event.key==='powerbank-stimulus-live'&&event.newValue)acceptLiveState(JSON.parse(event.newValue));});}
+function acceptLiveState(value){
+  try {
+    const data = typeof value === 'string' ? JSON.parse(value) : value;
+    if (data.condition && data.condition !== condition) return;
+    state = validated(data.state ? data.state : data);
+    const url = new URL(location.href);
+    url.hash = encodeURIComponent(JSON.stringify({ condition, state }));
+    history.replaceState(null, '', url);
+    render();
+  } catch (e) {}
+}
+
+if (participant) {
+  liveChannel?.addEventListener('message', event => acceptLiveState(event.data));
+  window.addEventListener('storage', event => {
+    if (event.key === LIVE_KEY && event.newValue) {
+      acceptLiveState(JSON.parse(event.newValue));
+    }
+  });
+}
+
 function form(){const f=document.getElementById('editorForm');f.replaceChildren();for(const [key,label]of Object.entries(labels)){const wrap=document.createElement('div');
     if(['explanation','name','source','sourceNote'].includes(key))wrap.className='wide';
     const l=document.createElement('label');l.htmlFor=key;l.textContent=label;
