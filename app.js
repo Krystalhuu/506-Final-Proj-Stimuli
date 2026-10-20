@@ -9,7 +9,7 @@ const conditionDefaults = {
   '2': { source: 'AI Shopping Assistant Pick', showExplanation: false },
   '3': { source: 'Our Expert Team Pick', showExplanation: true },
   '4': { source: 'Our Expert Team Pick', showExplanation: false },
-  '5': { source: '1000+ Previous Customers Pick', showExplanation: false },
+  '5': { source: '1000+ Previous Customers Pick', showExplanation: true },
   '6': { source: '1000+ Previous Customers Pick', showExplanation: false },
 };
 
@@ -107,12 +107,19 @@ function render(){document.querySelectorAll('[data-field]').forEach(el=>el.textC
     note.setAttribute('aria-hidden',String(!noteVisible));
     const seeWhy=document.getElementById('seeWhy');
     seeWhy.style.display=state.showExplanation&&participant&&!noteOpen?'inline-block':'none';
+    const feedbackBox = document.getElementById('feedbackBox');
+    const isFeedbackCondition = ['1', '3', '5'].includes(condition);
+    const feedbackVisible = isFeedbackCondition && state.showExplanation && noteVisible;
+    feedbackBox.hidden = !feedbackVisible;
+    feedbackBox.style.display = feedbackVisible ? 'block' : 'none';
+    feedbackBox.setAttribute('aria-hidden', String(!feedbackVisible));
+
     const conditionLabels = {
         '1': 'AI · Explanation present',
         '2': 'AI · Explanation absent',
         '3': 'Expert · Explanation present',
         '4': 'Expert · Explanation absent',
-        '5': 'Customers · Explanation absent',
+        '5': 'Customers · Explanation present',
         '6': 'Customers · Explanation absent',
         };
     document.getElementById('condition').textContent =
@@ -173,6 +180,30 @@ document.querySelector('.caption')?.remove();
 document.getElementById('productExplanation').style.marginBottom='0';
 document.getElementById('buy').style.marginTop='18px';
 document.getElementById('seeWhy').addEventListener('click',()=>{noteOpen=true;render();});
+document.getElementById('feedbackSubmit').addEventListener('click', () => {
+    const input = document.getElementById('feedbackInput');
+    const status = document.getElementById('feedbackStatus');
+    const value = input.value.trim();
+
+    if (!value) {
+        status.textContent = 'Please enter your feedback before submitting.';
+        return;
+    }
+
+    status.textContent = 'Thank you for your feedback.';
+    input.value = '';
+    input.disabled = true;
+    document.getElementById('feedbackSubmit').disabled = true;
+
+    // 通知 Qualtrics：可以显示 Next 按钮了
+    try {
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'feedbackSubmitted' }, '*');
+        }
+    } catch (e) {}
+});
+
+
 form();render();
 if(!participant&&document.modelContext?.registerTool){
     try{Promise.resolve(
