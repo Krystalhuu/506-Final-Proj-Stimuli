@@ -1,5 +1,6 @@
-const condition = '4';
-const isParticipant = true;
+const params = new URLSearchParams(location.search);
+const condition = params.get('condition') || '4';
+const isParticipant = params.get('view') === 'participant';
 
 const STORAGE_KEY = `powerbank-stimulus-config-${condition}`;
 
@@ -47,6 +48,8 @@ function validated(value) {
   return result;
 }
 
+
+
 let state = { ...defaults };
 
 function saveStateToStorage() {
@@ -54,6 +57,7 @@ function saveStateToStorage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {}
 }
+
 
 function loadStateFromStorage() {
   try {
@@ -68,11 +72,12 @@ function loadStateFromStorage() {
   }
 }
 
+
 try {
   if (location.hash.length > 1) {
     const parsed = JSON.parse(decodeURIComponent(location.hash.slice(1)));
     if (parsed && parsed.condition && parsed.condition !== condition) {
-      // hash 属于别的 condition，忽略
+      // hash 属于别的 condition，忽略，用 defaults
     } else {
       state = validated(parsed && parsed.state ? parsed.state : parsed);
     }
@@ -84,11 +89,13 @@ try {
   document.getElementById('status').textContent = 'Unable to load configuration; showing defaults.';
 }
 
+
 function update() {
   render();
   broadcast();
   saveStateToStorage();
 }
+
 
 const participant = isParticipant;
 if (participant) {
@@ -97,42 +104,40 @@ if (participant) {
 }
 let noteOpen = false;
 
-const labels = { retailer: 'Retailer name', brand: 'Product brand', name: 'Product name', price: 'Price', source: 'AI recommendation label', sourceNote: 'Explanation', explanation: 'Product Description' };
 
-function render() {
-  document.querySelectorAll('[data-field]').forEach(el => el.textContent = state[el.dataset.field] ?? '');
+const labels={retailer:'Retailer name',brand:'Product brand',name:'Product name',price:'Price',source:'AI recommendation label',sourceNote:'Explanation',explanation:'Product Description'};
+function render(){document.querySelectorAll('[data-field]').forEach(el=>el.textContent=state[el.dataset.field]??'');
 
-  const note = document.querySelector('.source-note');
-  const noteVisible = state.showExplanation && (!participant || noteOpen);
-  note.hidden = !noteVisible;
-  note.style.display = noteVisible ? 'block' : 'none';
-  note.setAttribute('aria-hidden', String(!noteVisible));
+    const note=document.querySelector('.source-note');
+    const noteVisible=state.showExplanation&&(!participant||noteOpen);
+    note.hidden=!noteVisible;note.style.display=noteVisible?'block':'none';
+    note.setAttribute('aria-hidden',String(!noteVisible));
+    const seeWhy=document.getElementById('seeWhy');
+    seeWhy.style.display=state.showExplanation&&participant&&!noteOpen?'inline-block':'none';
+    const feedbackBox = document.getElementById('feedbackBox');
+    const isFeedbackCondition = ['1', '3', '5'].includes(condition);
+    const feedbackVisible = isFeedbackCondition && state.showExplanation && noteVisible;
+    feedbackBox.hidden = !feedbackVisible;
+    feedbackBox.style.display = feedbackVisible ? 'block' : 'none';
+    feedbackBox.setAttribute('aria-hidden', String(!feedbackVisible));
 
-  const seeWhy = document.getElementById('seeWhy');
-  seeWhy.style.display = state.showExplanation && participant && !noteOpen ? 'inline-block' : 'none';
+    const conditionLabels = {
+        '1': 'AI · Explanation present',
+        '2': 'AI · Explanation absent',
+        '3': 'Expert · Explanation present',
+        '4': 'Expert · Explanation absent',
+        '5': 'Customers · Explanation present',
+        '6': 'Customers · Explanation absent',
+        };
+    document.getElementById('condition').textContent =
+    conditionLabels[condition] || 'AI · Explanation present';
 
-  const feedbackBox = document.getElementById('feedbackBox');
-  const isFeedbackCondition = ['1', '3', '5'].includes(condition);
-  const feedbackVisible = isFeedbackCondition && state.showExplanation && noteVisible;
-  feedbackBox.hidden = !feedbackVisible;
-  feedbackBox.style.display = feedbackVisible ? 'block' : 'none';
-  feedbackBox.setAttribute('aria-hidden', String(!feedbackVisible));
-
-  const conditionLabels = {
-    '1': 'AI · Explanation present',
-    '2': 'AI · Explanation absent',
-    '3': 'Expert · Explanation present',
-    '4': 'Expert · Explanation absent',
-    '5': 'Customers · Explanation present',
-    '6': 'Customers · Explanation absent',
-  };
-  document.getElementById('condition').textContent = conditionLabels[condition] || 'AI · Explanation present';
-
-  const url = new URL(location.href);
-  url.search = `?condition=${condition}&view=participant`;
-  url.hash = encodeURIComponent(JSON.stringify({ condition, state }));
-  document.getElementById('preview').href = url.href;
+    const url = new URL(location.href);
+    url.search = `?condition=${condition}&view=participant`;
+    url.hash = encodeURIComponent(JSON.stringify({ condition, state }));
+    document.getElementById('preview').href = url.href;
 }
+
 
 const LIVE_KEY = `powerbank-stimulus-live-${condition}`;
 
@@ -140,13 +145,13 @@ const liveChannel = typeof BroadcastChannel === 'function'
   ? new BroadcastChannel(LIVE_KEY)
   : null;
 
-function broadcast() {
+function broadcast(){
   const payload = JSON.stringify({ condition, state });
   liveChannel?.postMessage(payload);
   try { localStorage.setItem(LIVE_KEY, payload); } catch (e) {}
 }
 
-function acceptLiveState(value) {
+function acceptLiveState(value){
   try {
     const data = typeof value === 'string' ? JSON.parse(value) : value;
     if (data.condition && data.condition !== condition) return;
@@ -167,119 +172,78 @@ if (participant) {
   });
 }
 
-function form() {
-  const f = document.getElementById('editorForm');
-  f.replaceChildren();
-  for (const [key, label] of Object.entries(labels)) {
-    const wrap = document.createElement('div');
-    if (['explanation', 'name', 'source', 'sourceNote'].includes(key)) wrap.className = 'wide';
-    const l = document.createElement('label');
-    l.htmlFor = key;
-    l.textContent = label;
-    const input = document.createElement(['explanation', 'sourceNote'].includes(key) ? 'textarea' : 'input');
-    input.id = key;
-    input.value = state[key];
-    input.maxLength = 5000;
-    if (key === 'explanation') input.rows = 5;
-    if (key === 'sourceNote') input.rows = 3;
-    input.addEventListener('input', () => { state[key] = input.value; update(); });
-    wrap.append(l, input);
-    f.append(wrap);
-  }
-  const label = document.createElement('label');
-  label.className = 'toggle wide';
-  const check = document.createElement('input');
-  check.type = 'checkbox';
-  check.checked = state.showExplanation;
-  check.id = 'showExplanation';
-  check.addEventListener('change', () => { state.showExplanation = check.checked; update(); });
-  label.append(check, document.createTextNode('Show explanation'));
-  f.append(label);
-}
+function form(){const f=document.getElementById('editorForm');f.replaceChildren();for(const [key,label]of Object.entries(labels)){const wrap=document.createElement('div');
+    if(['explanation','name','source','sourceNote'].includes(key))wrap.className='wide';
+    const l=document.createElement('label');l.htmlFor=key;l.textContent=label;
+    const input=document.createElement(['explanation','sourceNote'].includes(key)?'textarea':'input');
+    input.id=key;input.value=state[key];input.maxLength=5000;
+    if(key==='explanation')input.rows=5;if(key==='sourceNote')input.rows=3;
+    input.addEventListener('input',()=>{state[key]=input.value;update();});
+    wrap.append(l,input);
+    f.append(wrap);}const label=document.createElement('label');label.className='toggle wide';
+    const check=document.createElement('input');check.type='checkbox';check.checked=state.showExplanation;
+    check.id='showExplanation';check.addEventListener('change',()=>{state.showExplanation=check.checked;
+        update();});
+        label.append(check,document.createTextNode('Show explanation'));
+        f.append(label);}
 
-document.getElementById('editorForm').addEventListener('submit', e => e.preventDefault());
-document.getElementById('buy').addEventListener('click', () => { document.getElementById('buyNote').textContent = 'Your product has been added into the cart'; });
-document.getElementById('download').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'powerbank-stimulus.json';
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  document.getElementById('status').textContent = 'Configuration downloaded. Load it here to continue editing.';
-});
 
-document.getElementById('import').addEventListener('change', async e => {
-  try {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.size > 100000) throw Error('Configuration file is too large.');
-    const next = validated(JSON.parse(await file.text()));
-    state = next;
-    form();
-    update();
-    document.getElementById('status').textContent = 'Configuration loaded.';
-  } catch (err) {
-    document.getElementById('status').textContent = err.message;
-  }
-});
+
+document.getElementById('editorForm').addEventListener('submit',e=>e.preventDefault());
+document.getElementById('buy').addEventListener('click',()=>{document.getElementById('buyNote').textContent='Your product has been added into the cart';});
+document.getElementById('download').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+
+const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+a.download='powerbank-stimulus.json';
+a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+document.getElementById('status').textContent='Configuration downloaded. Load it here to continue editing.';});
+
+
+document.getElementById('import').addEventListener('change',async e=>{try{const file=e.target.files[0];
+    if(!file)return;if(file.size>100000)throw Error('Configuration file is too large.');
+    const next=validated(JSON.parse(await file.text()));
+    state=next;form();update();document.getElementById('status').textContent='Configuration loaded.';}catch(err){document.getElementById('status').textContent=err.message;}});
 
 document.querySelector('.spec-title')?.remove();
 document.querySelector('.specs')?.remove();
 document.querySelector('.caption')?.remove();
-document.getElementById('productExplanation').style.marginBottom = '0';
-document.getElementById('buy').style.marginTop = '18px';
-document.getElementById('seeWhy').addEventListener('click', () => { noteOpen = true; render(); });
+document.getElementById('productExplanation').style.marginBottom='0';
+document.getElementById('buy').style.marginTop='18px';
+document.getElementById('seeWhy').addEventListener('click',()=>{noteOpen=true;render();});
 document.getElementById('feedbackSubmit').addEventListener('click', () => {
-  const input = document.getElementById('feedbackInput');
-  const status = document.getElementById('feedbackStatus');
-  const value = input.value.trim();
+    const input = document.getElementById('feedbackInput');
+    const status = document.getElementById('feedbackStatus');
+    const value = input.value.trim();
 
-  if (!value) {
-    status.textContent = 'Please enter your feedback before submitting.';
-    return;
-  }
-
-  status.textContent = 'Thank you for your feedback.';
-  input.value = '';
-  input.disabled = true;
-  document.getElementById('feedbackSubmit').disabled = true;
-
-  try {
-    if (window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: 'feedbackSubmitted' }, '*');
+    if (!value) {
+        status.textContent = 'Please enter your feedback before submitting.';
+        return;
     }
-  } catch (e) {}
+
+    status.textContent = 'Thank you for your feedback.';
+    input.value = '';
+    input.disabled = true;
+    document.getElementById('feedbackSubmit').disabled = true;
+
+    // 通知 Qualtrics：可以显示 Next 按钮了
+    try {
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'feedbackSubmitted' }, '*');
+        }
+    } catch (e) {}
 });
 
-form();
-render();
 
-if (!participant && document.modelContext?.registerTool) {
-  try {
-    Promise.resolve(
-      document.modelContext.registerTool({
-        name: 'configure_stimulus',
-        description: 'Update the editable power-bank stimulus text and explanation visibility.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            explanation: { type: 'string' },
-            showExplanation: { type: 'boolean' },
-            price: { type: 'string' },
-            name: { type: 'string' },
-          },
-          additionalProperties: false,
-        },
-        annotations: { readOnlyHint: false },
-        execute(input) {
-          state = validated({ ...state, ...input });
-          form();
-          render();
-          return { name: state.name, showExplanation: state.showExplanation, price: state.price };
-        },
-      })
-    ).catch(() => {});
-  } catch (e) {}
-}
+form();render();
+if(!participant&&document.modelContext?.registerTool){
+    try{Promise.resolve(
+        document.modelContext.registerTool({
+            name:'configure_stimulus',
+            description:'Update the editable power-bank stimulus text and explanation visibility.',
+            inputSchema:{type:'object',properties:{explanation:{type:'string'},
+            showExplanation:{type:'boolean'},price:{type:'string'},
+            name:{type:'string'}},additionalProperties:false},
+            annotations:{readOnlyHint:false},
+            execute(input){state=validated({...state,...input});
+            form();render();
+            return {name:state.name,showExplanation:state.showExplanation,price:state.price};}})).catch(()=>{});}catch(e){}}
