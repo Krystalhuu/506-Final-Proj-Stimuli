@@ -26,7 +26,7 @@ const defaults = {
   output: '20W',
   weight: '6.8 oz',
   dimensions: '4.2 × 2.6 × 0.6 in',
-  showExplanation: true,
+  showExplanation: false,
   ...(conditionDefaults[condition] || {}),
 };
 
