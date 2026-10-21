@@ -14,12 +14,12 @@ const conditionDefaults = {
 };
 
 const defaults = {
-  retailer: 'Everyday Supply',
+  retailer: 'Shopdaily.com',
   brand: 'GVlio',
   name: 'Compact Power Bank',
   price: '$14.99',
   source: '8000+ Previous Customers Pick',
-  sourceNote: 'You recently viewed several other products from this brand. Based on your past purchasing behavior, this product matches your purchasing preferences. Our AI assistant compared similar products based on power output, battery capacity, and price.',
+  sourceNote: ' ',
   explanation: 'GVlio-8 Pro, with a 10,000 mAh battery, USB-C connectivity, and up to 20W output.',
   capacity: '10,000 mAh',
   connection: 'USB-C',
