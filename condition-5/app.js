@@ -9,8 +9,8 @@ const conditionDefaults = {
   '2': { source: 'AI Shopping Assistant Pick', showExplanation: false },
   '3': { source: 'Our Expert Team Pick', showExplanation: true },
   '4': { source: 'Our Expert Team Pick', showExplanation: false },
-  '5': { source: '8000+ Previous Customers Pick', showExplanation: true },
-  '6': { source: '8000+ Previous Customers Pick', showExplanation: false },
+  '5': { source: '8000+ Customers Pick', showExplanation: true },
+  '6': { source: '8000+ Customers Pick', showExplanation: false },
 };
 
 const defaults = {
