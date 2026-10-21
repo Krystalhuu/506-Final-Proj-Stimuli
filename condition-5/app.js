@@ -18,7 +18,7 @@ const defaults = {
   brand: 'GVlio',
   name: 'Compact Power Bank',
   price: '$14.99',
-  source: '8000+ Previous Customers Pick',
+  source: '8000+ Customers Pick',
   sourceNote: 'Previous customers compared similar products based on their personal experiences with product performance. They highlighted its 20W power output for fast charging and its 10,000mAh battery capacity for sustained power as key strengths. Its price-to-performance ratio was identified as a competitive advantage.',
   explanation: 'GVlio-8 Pro, with a 10,000 mAh battery, USB-C connectivity, and up to 20W output.',
   capacity: '10,000 mAh',
