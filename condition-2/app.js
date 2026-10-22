@@ -14,7 +14,7 @@ const conditionDefaults = {
 };
 
 const defaults = {
-  retailer: 'Shopdaily',
+  retailer: 'Shopdaily.com',
   brand: 'GVlio',
   name: 'Compact Power Bank',
   price: '$14.99',
